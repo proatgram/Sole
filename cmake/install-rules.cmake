@@ -1,5 +1,5 @@
 install(
-    TARGETS Sole_exe
+    TARGETS Sole_game
     RUNTIME COMPONENT Sole_Runtime
 )
 
