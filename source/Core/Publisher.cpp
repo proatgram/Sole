@@ -17,19 +17,31 @@
  */
 
 #include "Core/Publisher.h"
-#include "Core/Subscriber.h"
 
 namespace Sole::Core {
-    auto Publisher::Unsubscribe(Subscriber &subscriber) -> void {
-        for (const auto &subed_event : subscriber.GetSubscribedEvents()) {
-            auto event_iter = std::find_if(m_events.begin(), m_events.end(), [s_event = subed_event](const auto &event) {
-                return s_event.type() == event.first.type();
-            });
-            if (event_iter != m_events.end()) {
-                event_iter->second.erase(std::remove_if(event_iter->second.begin(), event_iter->second.end(), [c_subscriber = subscriber](const Subscriber *subscriber) {
-                    return c_subscriber == *subscriber;
-                }), event_iter->second.end());
-            }
+    Publisher::Publisher(const Publisher &other) :
+        m_events(other.m_events)
+    {
+
+    }
+
+    Publisher::Publisher(Publisher &&other) noexcept :
+        m_events(std::move(other.m_events))
+    {
+
+    }
+
+    auto Publisher::operator=(const Publisher &other) -> Publisher& {
+        if (&other == this) {
+            return *this;
         }
+
+        m_events = other.m_events;
+        return *this;
+    }
+
+    auto Publisher::operator=(Publisher &&other) noexcept -> Publisher& {
+        m_events = std::move(other.m_events);
+        return *this;
     }
 } // namespace Sole::Core

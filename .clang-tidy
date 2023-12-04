@@ -13,7 +13,8 @@ Checks: "*,\
   -modernize-use-nodiscard,\
   -misc-non-private-member-variables-in-classes,\
   -modernize-pass-by-value\
-  -cppcoreguidelines-non-private-member-variables-in-classes"
+  -cppcoreguidelines-non-private-member-variables-in-classes\
+  -google-runtime-int"
 WarningsAsErrors: ''
 CheckOptions:
   - key: 'bugprone-argument-comment.StrictMode'

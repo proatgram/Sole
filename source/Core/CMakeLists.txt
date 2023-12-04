@@ -39,3 +39,8 @@ target_sources(
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/Core/Subscriber.cpp>"
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/Core/Subscriber.h>"
 )
+
+target_link_libraries(
+    EventPubSub
+        sfml-network
+)

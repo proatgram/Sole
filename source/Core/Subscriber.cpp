@@ -19,6 +19,35 @@
 #include "Core/Subscriber.h"
 
 namespace Sole::Core {
+    Subscriber::Subscriber() :
+        m_worker_thread([this]() {UpdateEvents();})
+    {
+        m_subscriber_socket.bind(sf::Socket::AnyPort, sf::IpAddress::LocalHost);
+    }
+
+    Subscriber::~Subscriber() {
+        m_running.store(false);
+        m_worker_thread.join();
+    }
+
+    Subscriber::Subscriber(Subscriber &&other) noexcept :
+        m_id(other.m_id),
+        m_subscriber_name(std::move(other.m_subscriber_name)),
+        m_worker_thread([this]() {UpdateEvents();}),
+        m_subscribed_events(std::move(other.m_subscribed_events))
+    {
+
+    }
+
+    auto Subscriber::operator=(Subscriber &&other) noexcept -> Subscriber& {
+        m_id = other.m_id;
+        m_subscriber_name = std::move(other.m_subscriber_name);
+        m_worker_thread = std::thread([this]() {UpdateEvents();});
+        m_subscribed_events = std::move(other.m_subscribed_events);
+
+        return *this;
+    }
+
     auto Subscriber::operator==(const Subscriber &other) const -> bool {
         return m_id == other.m_id;
     }
@@ -37,5 +66,16 @@ namespace Sole::Core {
 
     auto Subscriber::GetSubscribedEvents() const -> const std::list<std::any>& {
         return m_subscribed_events;
+    }
+
+    auto Subscriber::UpdateEvents() -> void {
+        sf::Packet packet;
+        sf::IpAddress ip_address;
+        unsigned short int port;
+        while(m_running.load()) {
+            if (m_subscriber_socket.receive(packet, ip_address, port) == sf::Socket::Done) {
+                std::cout << "Recieved" << std::endl;
+            }
+        }
     }
 } // namespace Sole::Core

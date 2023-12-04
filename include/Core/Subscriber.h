@@ -20,24 +20,31 @@
 
 #include <any>
 #include <list>
+#include <map>
 #include <string>
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <functional>
 
 #include <iostream>
+
+#include "Core/Publisher.h"
 
 namespace Sole::Core {
     class Subscriber {
         public:
-            Subscriber() = default;
+            Subscriber();
 
-            ~Subscriber() = default;
+            ~Subscriber();
 
-            Subscriber(const Subscriber &other) = default;
+            Subscriber(const Subscriber &other) = delete;
 
-            Subscriber(Subscriber &&other) noexcept = default;
+            Subscriber(Subscriber &&other) noexcept;
             
-            auto operator=(const Subscriber &other) -> Subscriber& = default;
+            auto operator=(const Subscriber &other) -> Subscriber& = delete;
 
-            auto operator=(Subscriber &&other) -> Subscriber& = default;
+            auto operator=(Subscriber &&other) noexcept -> Subscriber&;
 
             auto operator==(const Subscriber &other) const -> bool;
 
@@ -49,14 +56,38 @@ namespace Sole::Core {
 
             auto GetSubscribedEvents() const -> const std::list<std::any>&;
 
-            template <typename EventType, typename EventTypeData>
-            inline auto Notify(EventType event, EventTypeData event_data) -> void {
-                std::cout << typeid(event).name() << std::endl;
+            template <typename EventType, EventType Event>
+            inline auto Susbcribe(Publisher &publisher) -> void {
+                auto event_iter = std::find_if(m_subscribed_events.begin(), m_subscribed_events.end(), [](const std::any &event) {
+                    if (event.type() == typeid(Event)) {
+                        return std::any_cast<EventType>(event) == Event;
+                    }
+                    return false;
+                });
+                if (event_iter == m_subscribed_events.end()) {
+                    m_subscribed_events.push_back(std::make_any<EventType>(Event));
+                    publisher.template AddSubscribedPort<EventType, Event>(m_subscriber_socket.getLocalPort());
+                }
             }
+
+            template <typename EventType, EventType Event>
+            inline auto AddEventCallback(const std::function<void(std::any)> &callback) -> void {
+                m_event_callbacks.insert_or_assign(Event, callback);
+            }
+
+            auto GetListeningPort() const -> unsigned short int;
         private:
+            auto UpdateEvents() -> void;
+
             int m_id{};
             std::string m_subscriber_name;
 
+            std::atomic_bool m_running{true};
+
+            sf::UdpSocket m_subscriber_socket;
+            std::thread m_worker_thread;
+
             std::list<std::any> m_subscribed_events;
+            std::map<std::any, std::function<void(std::any)>> m_event_callbacks;
     };
 } // namespace Sole::Core

@@ -25,6 +25,9 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+
+#include <SFML/Network.hpp>
 
 namespace Sole::Core {
     class Subscriber;
@@ -35,39 +38,26 @@ namespace Sole::Core {
 
             ~Publisher() = default;
 
-            Publisher(const Publisher &other) = default;
+            Publisher(const Publisher &other);
 
-            Publisher(Publisher &&other) noexcept = default;
+            Publisher(Publisher &&other) noexcept;
             
-            auto operator=(const Publisher &other) -> Publisher& = default;
+            auto operator=(const Publisher &other) -> Publisher&;
 
-            auto operator=(Publisher &&other) -> Publisher& = default;
+            auto operator=(Publisher &&other) noexcept -> Publisher&;
 
             template <typename EventType, EventType Event>
-            inline auto Subscribe(Subscriber &subscriber) -> void {
+            inline auto Subscribe(unsigned short int udp_port) -> void {
                 auto event = std::find_if(m_events.begin(), m_events.end(), [](const auto &event) {
                     return std::any_cast<EventType>(event.first) == Event;
                 });
                 if (event != m_events.end()) {
-                    event->second.push_back(&subscriber);
+                    event->second.push_back(udp_port);
                 }
                 else {
-                    m_events.emplace_back(Event, std::initializer_list<Subscriber*>{&subscriber});
+                    m_events.emplace_back(Event, std::initializer_list<unsigned short int>{udp_port});
                 }
             }
-
-            template<typename EventType>
-            inline auto UnsubscribeEvent(Subscriber &subscriber) -> void {
-                auto event = std::find(m_events.begin(), m_events.end(), typeid(EventType));
-                if (event != m_events.end()) {
-                    auto sub = std::find(event->second.begin(), event->second.end(), subscriber);
-                    if (sub != event->second.end()) {
-                        event->second.remove(*sub);
-                    }
-                }
-            }
-
-            auto Unsubscribe(Subscriber &subscriber) -> void;
 
             template <typename EventType, EventType EventData, typename EventDataType>
             inline auto Publish(EventDataType event_data) -> void {
@@ -75,8 +65,10 @@ namespace Sole::Core {
                     return std::any_cast<EventType>(event.first) == EventData;
                 });
                 if (event != m_events.end()) {
-                    for (const auto &subscriber : event->second) {
-                        subscriber->template Notify<EventType>(EventData, event_data);
+                    for (const auto &subscriber_port : event->second) {
+                        sf::Packet packet;
+                        packet << EventData;
+                        m_publisher_socket.send(packet, sf::IpAddress::LocalHost, subscriber_port);
                     }
                 }
             }
@@ -87,13 +79,38 @@ namespace Sole::Core {
                     return std::any_cast<EventType>(event.first) == c_event;
                 });
                 if (event_iter != m_events.end()) {
-                    for (const auto &subscriber : event_iter->second) {
-                        subscriber->template Notify<EventType>(event, event_data);
+                    for (const auto &subscriber_port : event_iter->second) {
+                        sf::Packet packet;
+                        packet << event;
+                        packet << event_data;
+                        m_publisher_socket.send(packet, sf::IpAddress::LocalHost, subscriber_port);
                     }
                 }
             }
+
+            template <typename EventType, EventType Event>
+            inline auto AddSubscribedPort(unsigned short int udp_port) -> void {
+                auto event_iter = std::find_if(m_events.begin(), m_events.end(), [](const auto &event) {
+                    if (event.first.type() == typeid(EventType)) {
+                        return std::any_cast<EventType>(event.first) == Event;
+                    }
+                    return false;
+                });
+                if (event_iter != m_events.end()) {
+                    auto subscriber_port_iter = std::find(event_iter->second.begin(), event_iter->second.end(), udp_port);
+                    std::cout << "asasd" << std::endl;
+                    if (subscriber_port_iter == event_iter->second.end()) {
+                        event_iter->second.push_back(udp_port);
+                        std::cout << "asdasd" << std::endl;
+                    }
+                }
+                else {
+                    m_events.emplace_back(std::make_any<EventType>(Event), std::initializer_list<unsigned short int>{udp_port});
+                }
+            }
         private:
+            sf::UdpSocket m_publisher_socket;
             
-            std::vector<std::pair<std::any, std::list<Subscriber*>>> m_events;
+            std::vector<std::pair<std::any, std::list<unsigned short int>>> m_events;
     };
 } // namespace Sole::Core
