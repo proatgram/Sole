@@ -44,3 +44,12 @@ target_link_libraries(
     EventPubSub
         sfml-network
 )
+
+# Target Event
+add_library(Event INTERFACE)
+add_library(Sole::Core::Event ALIAS Event)
+
+target_sources(
+    Event
+    INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/Core/Event.h>"
+)

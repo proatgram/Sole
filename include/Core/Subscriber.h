@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include "Core/Publisher.h"
+#include "Core/Event.h"
 
 namespace Sole::Core {
     class Subscriber {
