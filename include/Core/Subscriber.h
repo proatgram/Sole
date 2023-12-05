@@ -21,6 +21,7 @@
 #include <any>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <thread>
 #include <atomic>
@@ -71,9 +72,8 @@ namespace Sole::Core {
                 }
             }
 
-            template <typename EventType, EventType Event>
-            inline auto AddEventCallback(const std::function<void(std::any)> &callback) -> void {
-                m_event_callbacks.insert_or_assign(Event, callback);
+            inline auto AddEventCallback(const std::shared_ptr<Sole::Core::Event> &event, const std::function<void(std::any)> &callback) -> void {
+                m_event_callbacks.insert_or_assign(event, callback);
             }
 
             auto GetListeningPort() const -> unsigned short int;
@@ -89,6 +89,6 @@ namespace Sole::Core {
             std::thread m_worker_thread;
 
             std::list<std::any> m_subscribed_events;
-            std::map<std::any, std::function<void(std::any)>> m_event_callbacks;
+            std::map<std::shared_ptr<Sole::Core::Event>, std::function<void(std::any)>> m_event_callbacks;
     };
 } // namespace Sole::Core

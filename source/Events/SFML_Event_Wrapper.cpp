@@ -22,11 +22,39 @@ namespace Sole::Events {
     auto SFMLEventWrapper::Compare(const Event &other) const -> bool {
         // If the type in the other `Event` and this aren't the same type
         // Then we know for a fact the values are not equal.
-        if (typeid(m_event) != typeid(other.GetEvent())) {
+        if (!TypeCheck(other)) {
+            return false;
+        }
+
+        // Simple comparison for simple enum
+        return m_event == std::any_cast<decltype(m_event)>(other.Get());
+    }
+
+    auto SFMLEventWrapper::Compare(const std::any &type) const -> bool {
+        if (!TypeCheck(type)) {
             return false;
         }
         
-        // Simple comparison for simple enum
-        return m_event == other.GetEvent();
+        return m_event == std::any_cast<decltype(m_event)>(type);
+    }
+
+    auto SFMLEventWrapper::operator<(const Event &other) const -> bool {
+        if(!TypeCheck(other)) {
+            return false;
+        }
+
+        return static_cast<int>(m_event) < static_cast<int>(std::any_cast<decltype(m_event)>(other.Get()));
+    }
+
+    auto SFMLEventWrapper::operator==(const Event &other) const -> bool {
+        return Compare(other.Get());
+    }
+
+    auto SFMLEventWrapper::operator!=(const Event &other) const -> bool {
+        return !Compare(other.Get());
+    }
+
+    auto SFMLEventWrapper::Get() const -> std::any {
+        return m_event;
     }
 } // namespace Sole::Events

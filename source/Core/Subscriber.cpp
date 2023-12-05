@@ -74,7 +74,17 @@ namespace Sole::Core {
         unsigned short int port;
         while(m_running.load()) {
             if (m_subscriber_socket.receive(packet, ip_address, port) == sf::Socket::Done) {
-                std::cout << "Recieved" << std::endl;
+                std::any event;
+                
+                auto callback_iter = std::find_if(m_event_callbacks.begin(), m_event_callbacks.end(), [&event](const auto &container) -> bool {
+                    return container.first->Compare(event);
+                });
+
+                if (callback_iter == m_event_callbacks.end()) {
+                    break;
+                }
+
+                callback_iter->second(callback_iter->first->Get());
             }
         }
     }

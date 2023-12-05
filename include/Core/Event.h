@@ -18,10 +18,10 @@
 
 #pragma once
 
+#include <any>
+
 namespace Sole::Core {
-    class BaseEvent {};
-    template <typename T>
-    class Event : public BaseEvent {
+    class Event {
         public:
             Event() = default;
 
@@ -31,26 +31,28 @@ namespace Sole::Core {
 
             Event(Event &&other) noexcept = default;
 
-            inline explicit Event(const T &other) : m_event(other) {}
-
             auto operator=(const Event& other) -> Event& = default;
 
             auto operator=(Event &&other) noexcept -> Event& = default;
+
+            virtual auto operator<(const Event &other) const -> bool = 0;
 
             virtual auto operator==(const Event &other) const -> bool = 0;
 
             virtual auto operator!=(const Event &other) const -> bool = 0;
 
-            virtual auto Compare(const Event& other) const -> bool = 0;
+            virtual auto Compare(const Event &other) const -> bool = 0;
 
-            inline auto GetEvent() const -> const T& {
-                return m_event;
+            virtual auto Compare(const std::any &type) const -> bool = 0;
+
+            virtual auto Get() const -> std::any = 0;
+        protected:
+            inline auto TypeCheck(const Event &other) const -> bool {
+                return Get().type() == other.Get().type();
             }
 
-        protected:
-            T m_event;
+            inline auto TypeCheck(const std::any &type) const -> bool {
+                return Get().type() == type.type();
+            }
     };
-
-    template<>
-    class Event<void> {};
 } // namespace Sole::Core

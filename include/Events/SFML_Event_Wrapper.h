@@ -23,7 +23,7 @@
 #include "Core/Event.h"
 
 namespace Sole::Events {
-    class SFMLEventWrapper final : public Sole::Core::Event<sf::Event::EventType> {
+    class SFMLEventWrapper final : public Sole::Core::Event {
         public:
             SFMLEventWrapper() = delete;
 
@@ -31,16 +31,24 @@ namespace Sole::Events {
 
             SFMLEventWrapper(const SFMLEventWrapper &other) = default;
 
-            SFMLEventWrapper(SFMLEventWrapper &&other) = default;
+            SFMLEventWrapper(SFMLEventWrapper &&other) noexcept = default;
 
             auto operator=(const SFMLEventWrapper &other) -> SFMLEventWrapper& = default;
 
-            auto operator=(SFMLEventWrapper &&other) -> SFMLEventWrapper& = default;
+            auto operator=(SFMLEventWrapper &&other) noexcept -> SFMLEventWrapper& = default;
+
+            auto operator<(const Event &other) const -> bool final;
 
             auto operator==(const Event &other) const -> bool final;
 
             auto operator!=(const Event &other) const -> bool final;
 
             auto Compare(const Event &other) const -> bool final;
+
+            auto Compare(const std::any &type) const -> bool final;
+
+            auto Get() const -> std::any final;
+        private:
+            sf::Event::EventType m_event;
     };
 } // namespace Sole::Events
