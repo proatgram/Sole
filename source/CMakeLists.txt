@@ -15,7 +15,6 @@ target_sources(
 target_link_libraries(Sole
     PUBLIC
         Sole::Core::State
-        Sole::Core::EventPubSub
 )
 
 add_executable(Sole_game main.cpp)

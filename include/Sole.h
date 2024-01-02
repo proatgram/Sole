@@ -19,8 +19,6 @@
 #pragma once
 
 #include "Core/State.h"
-#include "Core/Subscriber.h"
-#include "Core/Publisher.h"
 
 #include <vector>
 #include <stack>
@@ -56,9 +54,6 @@ namespace Sole {
             sf::RenderWindow m_sfml_window;
             sf::Event m_sfml_event;
             sf::Clock m_sfml_clock;
-
-            Core::Publisher m_event_publisher;
-            Core::Subscriber m_event_subscriber;
 
             std::stack<Core::State> m_state_stack;
     };

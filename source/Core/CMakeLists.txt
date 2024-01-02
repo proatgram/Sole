@@ -27,29 +27,3 @@ target_link_libraries(
     Game
         Sole::Core::State
 )
-
-# Target EventPubSub
-add_library(EventPubSub)
-add_library(Sole::Core::EventPubSub ALIAS EventPubSub)
-
-target_sources(
-    EventPubSub
-        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/Core/Publisher.cpp>"
-        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/Core/Publisher.h>"
-        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/Core/Subscriber.cpp>"
-        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/Core/Subscriber.h>"
-)
-
-target_link_libraries(
-    EventPubSub
-        sfml-network
-)
-
-# Target Event
-add_library(Event INTERFACE)
-add_library(Sole::Core::Event ALIAS Event)
-
-target_sources(
-    Event
-    INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/Core/Event.h>"
-)

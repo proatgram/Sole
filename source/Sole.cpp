@@ -17,15 +17,12 @@
  */
 
 #include "Sole.h"
-#include "Utilities/SFML_Packet.h"
 
 namespace Sole {
     Sole::Sole() :
         m_delta_time(),
         m_sfml_event()
     {
-        //m_event_publisher.Subscribe<sf::Event::EventType, sf::Event::EventType::KeyPressed>(m_event_subscriber);
-        m_event_subscriber.Susbcribe<sf::Event::EventType, sf::Event::EventType::KeyPressed>(m_event_publisher);
     }
 
     auto Sole::UpdateDeltaTime() -> void {
@@ -35,7 +32,6 @@ namespace Sole {
     auto Sole::Update() -> void {
         // SFML Events
         while (m_sfml_window.pollEvent(m_sfml_event)) {
-            m_event_publisher.Publish<sf::Event::EventType>(m_sfml_event.type, m_sfml_event);
             if (m_sfml_event.type == sf::Event::Closed) {
                 m_sfml_window.close();
             }
