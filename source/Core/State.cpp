@@ -1,6 +1,6 @@
 /*
- * <one line to give the program's name and a brief idea of what it does.>
- *  Copyright (C) <year>  <name of author>
+ *  An adventure game set in a Sci-Fi world where you have to fight to survive.
+ *  Copyright (C) 2023  Timothy Hutchins
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,14 +16,16 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <string>
+#include "Core/State.h"
 
-#include "Sole.h"
+namespace Sole::Core {
+    State::State(sf::RenderWindow &render_window) :
+        m_sfml_window(&render_window)
+    {
 
-auto main() -> int {
-    Sole::Sole sole;
+    }
 
-    sole.Run();
-
-    return 0;
-}
+    auto State::IsFinished() -> bool {
+        return m_state_finished;
+    }
+} // namespace Sole::Core

@@ -7,7 +7,6 @@ project(SoleTests LANGUAGES CXX)
 # ---- Tests ----
 
 add_executable(Sole_test source/Sole_test.cpp)
-target_link_libraries(Sole_test PRIVATE Sole_lib)
 target_compile_features(Sole_test PRIVATE cxx_std_17)
 
 add_test(NAME Sole_test COMMAND Sole_test)

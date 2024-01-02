@@ -13,22 +13,16 @@ project(
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
-target_include_directories(
-    Sole_lib ${warning_guard}
-    PUBLIC
-    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-)
+set(CMAKE_CXX_STANDARD 17)
 
-target_compile_features(Sole_lib PUBLIC cxx_std_17)
+# ---- Find Packages ----
+find_package(SFML 2.6 COMPONENTS window REQUIRED)
 
-# ---- Declare executable ----
+# ---- Include Subdirectories ----
 
-add_executable(Sole_game source/main.cpp)
-add_executable(Sole::game ALIAS Sole_game)
+include_directories("$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
-set_property(TARGET Sole_game PROPERTY OUTPUT_NAME Sole)
-
-target_compile_features(Sole_game PRIVATE cxx_std_17)
+add_subdirectory("source")
 
 # ---- Install rules ----
 

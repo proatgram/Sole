@@ -7,10 +7,10 @@ endif()
 
 add_custom_target(
     run-exe
-    COMMAND Sole_exe
+    COMMAND Sole_game
     VERBATIM
 )
-add_dependencies(run-exe Sole_exe)
+add_dependencies(run-exe Sole_game)
 
 option(BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)
 if(BUILD_MCSS_DOCS)
